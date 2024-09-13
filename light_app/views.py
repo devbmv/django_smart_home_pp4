@@ -109,7 +109,6 @@ def check_server_status(request):
     # Verificăm setările utilizatorului
     try:
         silence_mode = request.user.usersettings.silence_mode
-        server_online = False
 
         if request.user_ip:
             try:
@@ -227,7 +226,6 @@ def toggle_light(request, room_name, light_name):
     if user_ip:
 
         try:
-            server_online = False
             try:
                 print(f"Checking if ESP32 is online at IP: {user_ip}")
                 response = requests.get(f"http://{request.user_ip}", timeout=50)
