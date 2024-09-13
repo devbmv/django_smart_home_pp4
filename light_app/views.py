@@ -49,11 +49,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt  # Dezactivează protecția CSRF pentru acest endpoint
 def status_response_for_esp32(request):
-    return JsonResponse({
-                "status": "success",
-                "message": "ESP32 successfully connected to Django server"
-            }, status=200)
-
     if request.method == 'GET':
         # Verificăm dacă există un header de autorizare (Basic Authentication)
         
