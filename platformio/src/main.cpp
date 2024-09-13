@@ -425,13 +425,7 @@ bool checkServerStatus() {
             if (!clientIPAddress.isEmpty()) {
                 serverCheckUrl = "http://" + clientIPAddress + ":8000/status_response_for_esp32/";
                 Serial.println("ServerCheckUrl auto-setat la: " + serverCheckUrl);
-            } else {
-                Serial.println("Invalid serverCheckUrl format și nu există client IP!");
-                String message = "Django is offline";
-                Serial.println(message);
-                displayText(message, 0, 0);
-                return false;
-            }
+            } 
         }
 
         // Verifică URL-ul serverului
@@ -740,28 +734,12 @@ void serverSetup()
     }else{
     request->send(200,"text/plain","I am esp32 and you succesful checked, my status ONLINE");
 } });
-    //============================================================================
+   //============================================================================
 
-    server.begin();
+    server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+                  Serial.println(request->client()->remoteIP());
+                  request->send(200,"text/plain","SUcces received request"); }
+
+    );
 }
-
-//============================================================================
-
-// void sendWebSocketMessage(String message)
-// {
-//     for (int i = 0; i < webSocket.connectedClients(); i++)
-//     {
-//         webSocket.sendTXT(i, message); // Trimite mesajul fiecărui client conectat
-//         debug("WSMSG sended: " + message, 0, 100);
-//     }
-// }
-
-//============================================================================
-
-void debug(String msg, uint16_t col, uint16_t row)
-{
-    Serial.println(msg);
-    displayText(msg, col, row);
-}
-
-//============================================================================
