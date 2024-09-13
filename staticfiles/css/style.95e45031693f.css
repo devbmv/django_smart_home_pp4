@@ -1,0 +1,367 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    font-family: Lato, sans-serif;
+    font-size: 17px;
+    font-weight: 450;
+    color: #3a3a3a;
+    background-color: #F9FAFC;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: Oswald, sans-serif;
+    color: #191a1a;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.btn {
+    font-weight: bold;
+}
+
+.btn:hover {
+    transform: scale(1.05); 
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Navigation bar */
+.navbar {
+    box-shadow: 1px -1px 8px 0 darkorange;
+    border: 2px solid #c42c2c30;
+}
+
+/* Logo */
+.navbar-brand {
+    font-family: Oswald, sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    letter-spacing: 1px;
+    color: rgb(10, 32, 10);
+    font-weight: 400;
+}
+
+.navbar-brand:hover {
+    color: #850000;
+}
+
+a.nav-link {
+    color:#3a3a3a;
+    font-family: Lato, sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.navbar-nav .nav-link.active, 
+.navbar-nav .nav-link.show  {
+    color: #850000;
+    font-weight: bold;
+}
+
+.nav-link:hover {
+    font-weight: bold;
+    color: #850000;   
+}
+
+header {
+    margin-bottom: 0;
+}
+
+/* Footer */
+footer {
+    flex-shrink: 0;
+    text-align: center;
+    box-shadow: 1px -1px 8px 0 darkorange;
+    border: 2px solid #c42c2c30;
+    background-color: darkolivegreen;
+    padding: 10px;
+} 
+
+footer p {
+    font-family: Lato, sans-serif;
+    font-size: 16px;
+    color: white;
+    font-weight: 450;
+    margin-bottom: 0;
+}
+    
+footer > a {
+    margin-right: 30px;
+    font-size: x-large; 
+    color: white; 
+}
+
+.social-links:hover {
+    color: white;
+    font-weight: bold;
+    transform: scale(1.5);
+}
+
+.social-links {
+    transition: all 0.3s linear;
+}
+
+/* Index Page */
+/* Hero image and about section */
+.image-background {
+    height: 100vh;
+    min-height: 500px;
+    background-image: url("https://res.cloudinary.com/dpzitpjjc/image/upload/v1707249301/media/hero-image_sg6s7s.webp"); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.with-shadow {
+    box-shadow: 0px 0px 0px 2px rgba(148, 94, 94, 0.9);
+    background-color: rgba(138, 48, 48, 0.9);
+    padding: 15px; 
+    border-radius: 10px; 
+    width: 80%; 
+    max-width: 600px;  
+    margin: 0 auto; 
+} 
+  
+.display-1 {
+    font-family: Lato, sans-serif;
+    font-size: x-large;
+    font-weight: 400;
+    color: white;
+    margin-bottom: 15px;
+} 
+  
+.lead {
+    line-height: 1.5;
+    color: white;
+    font-family: Lato, sans-serif;
+    font-size: 18px;
+}  
+
+.btn-dark {
+    border: none; 
+    border-radius: 5px; 
+    background-color: #188181; 
+    color: #fff; 
+    cursor: pointer; 
+}
+
+.btn-dark:hover {
+    background-color: #23BBBB; 
+}
+
+/* Login and Signup Form */
+.card {
+    border-color:black;
+    box-shadow: 1px -1px 8px black;
+}
+
+.card-bg {
+    background-color: #188181;
+}
+
+.login, .signup {
+    max-width: 400px; 
+    margin: 0 auto; 
+    padding: 20px; 
+    background-color: #fff; 
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); 
+}
+
+.login input[type="text"],
+.login input[type="password"],
+.signup input[type="text"],
+.signup input[type="email"],
+.signup input[type="password"] {
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 5px; 
+    border: 1px solid #ced4da; 
+    border-radius: 5px; 
+}
+
+.btn-signup {
+    width: 100%; 
+    padding: 10px; 
+    border: none; 
+    border-radius: 5px; 
+    background-color: #188181; 
+    color: #fff; 
+    cursor: pointer; 
+}
+
+.btn-signup:hover {
+    background-color: #23BBBB; 
+}
+
+/* Recipe List Page */
+.recipe-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    font-size: 16px;
+}
+
+.btn-primary:hover {
+    background-color: darkblue;
+}
+
+/* Recipe List Pagination */
+.page-link {
+    background-color: rgb(55, 57, 209);
+    font-weight: bold;
+    color: white;
+    border: 2px solid #dee2e6;
+}
+
+.pagination {
+    margin-bottom: 30px;
+}
+
+/* Recipe details */
+.image {
+    width: 100%;
+    height: auto;
+}
+
+.like-icon {
+    font-size: 27px;
+}
+
+.liked {
+    color: red;
+}
+
+.spacer {
+    margin-left: 30px;
+}
+
+.spacer-font {
+    font-size: 20px;
+}
+
+.btn-spacing {
+    margin-right: 14px;
+}
+.title-container h1,
+.ingredients-container p,
+.instructions-container p {
+    word-wrap: break-word;
+}
+
+.ingredients-container {
+    font-size: 18px;
+    font-family: Lato, sans-serif;
+    color: #3a3a3a;
+}
+
+.instructions-container p {
+    font-size: 18px;
+    font-family: Lato, sans-serif;
+    color: #3a3a3a;
+}
+
+/* Error Page */
+.lead-text {
+    line-height: 1.5;
+    color: black;
+    font-family: Lato, sans-serif;
+    font-size: 18px;
+}
+
+/* Search Recipes Page */
+.search-form {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 8px;
+    border: 1px solid black;
+    background-color:dimgray;
+    border-radius: 5px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group {
+    flex: 1;
+    padding: 8px;
+}
+
+.search-input {
+    margin-right: 8px;
+}
+
+.search-btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.card-deck {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px; /* Spațiu suplimentar între carduri pe verticală */
+
+
+}
+
+.card {
+    flex: 1 0 30%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%; /* Asigură că toate cardurile se întind pe toată înălțimea disponibilă */
+
+}
+
+.card-body {
+    flex-grow: 1; /* Face ca corpul cardului să ocupe tot spațiul disponibil */
+}
+
+.card-footer {
+    margin-top: auto; /* Păstrează subsolul cardului la partea de jos */
+}
+
+
+
+
+
+
+

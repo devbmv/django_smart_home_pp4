@@ -1,0 +1,58 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 20px;
+}
+
+h1 {
+  color: #007BFF;
+}
+
+label, input, button {
+  margin: 10px 0;
+}
+
+input, button {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+#response {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #ccc;
+  border-radius: 5px;
+}
+
+.progress {
+  width: 100%;
+  background: #ddd;
+  margin-top: 20px;
+  height: 20px;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4CAF50;
+  width: 0%;
+  border-radius: 10px;
+}
+
+.info {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #555;
+}

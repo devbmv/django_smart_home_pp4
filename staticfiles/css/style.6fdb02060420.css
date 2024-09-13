@@ -1,0 +1,371 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Lato', sans-serif;
+    font-size: 17px;
+    color: #34495e;
+    background-color: #ecf0f1;
+    display: flex;
+    flex-direction: column;
+}
+.light-on {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.light-off {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Light and Dark Themes */
+body.light {
+    background-color: white;
+    color: black;
+}
+
+body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+body.small {
+    font-size: 12px;
+}
+
+body.medium {
+    font-size: 16px;
+}
+
+body.large {
+    font-size: 20px;
+}
+
+/* Primary Button */
+.btn-primary {
+    background-color: var(--primary-color, #2471a3);
+    border-color: var(--primary-color, #2471a3);
+    color: #ffffff; /* White text for visibility */
+}
+
+.btn-primary:hover {
+    background-color: #1f618d;
+    border-color: #1a5276;
+}
+
+/* Theme Elements */
+body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.navbar, .footer, .card, .list-group-item, .card-footer {
+    background-color: inherit;
+    color: inherit;
+}
+
+body.dark .card,
+body.dark .list-group-item,
+body.dark .card-footer {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Anchor Tags */
+a {
+    color: var(--primary-color, #2980b9);
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+    color: #2c3e50;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid #2980b9;
+    background-color: #1a5276;
+}
+
+.navbar-brand {
+    font-family: 'Oswald', sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    letter-spacing: 1px;
+    color: #0c4a5a;
+}
+
+.navbar-brand:hover {
+    color: #f39c12;
+}
+
+a.nav-link {
+    color: #0ca1c7;
+    font-family: 'Lato', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.show {
+    color: #f39c12;
+}
+
+.nav-link:hover {
+    font-weight: bold;
+    color: #f39c12;
+}
+
+header {
+    margin-bottom: 0;
+}
+
+/* Footer */
+footer.social {
+    flex-shrink: 0;
+    text-align: center;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+    border-top: 3px solid #2980b9;
+    background-color: #2c3e50;
+    padding: 15px 0;
+    width: 100%;
+}
+
+footer p {
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    color: #ecf0f1;
+    font-weight: 450;
+    margin-bottom: 5px;
+}
+
+footer>a {
+    margin-right: 30px;
+    font-size: 24px;
+    color: #f39c12;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.social-links:hover {
+    color: #e67e22;
+    font-weight: bold;
+    transform: scale(1.2);
+}
+
+.social-links {
+    transition: all 0.3s ease;
+}
+
+/* Button Styles */
+.btn {
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+/* Specific styles for buttons on cards */
+.btn-add-light {
+    background-color: #28a745;
+    border: 2px solid #218838;
+    color: #ffffff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-add-light:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-edit-room {
+    background-color: #ffc107;
+    color: #000000;
+    border: 2px solid #e0a800;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-edit-room:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-delete-room {
+    background-color: #dc3545;
+    border: 2px solid #c82333;
+    color: #ffffff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.btn-delete-room:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Toggle switch styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-left: auto;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #dcdcdc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: attr(data-text);
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: #000;
+}
+
+input:checked+.slider {
+    background-color: #2aa989;
+}
+
+input:checked+.slider:before {
+    transform: translateX(26px);
+    content: "On";
+}
+
+input:not(:checked)+.slider:before {
+    content: "Off";
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Light status card colors */
+.light-on {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.light-off {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Card styles */
+.card-deck {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.card {
+    flex: 1 0 30%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-body {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.card-footer {
+    margin-top: auto;
+    background-color: #f7f7f7;
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* List item styles */
+.list-group-item {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item .d-flex {
+    align-items: center;
+}
+
+.ml-2 {
+    margin-left: 0.5rem;
+}
+
+.toggle-light-form {
+    margin-left: 10px;
+}

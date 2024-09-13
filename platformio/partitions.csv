@@ -1,0 +1,7 @@
+# Name,   Type, SubType, Offset,    Size
+nvs,      data, nvs,      36864,    20480,
+otadata,  data, ota,      57344,    8192,
+app0,     app,  ota_0,    65536,    6553600, 
+app1,     app,  ota_1,    6684672,  6553600, 
+spiffs,   data, spiffs,   13238272, 3145728, 
+coredump, data, coredump, 16384000, 204800, 

@@ -1,0 +1,399 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: none;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    font-family: 'Lato', sans-serif;
+    font-size: 17px;
+    font-weight: 450;
+    color: #2c3e50; /* Schimbat la un albastru închis elegant */
+    background-color: #ecf0f1; /* Schimbat la un gri deschis, calmant */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+    color: #34495e; /* Schimbat la un albastru-gri profund */
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.btn {
+    font-weight: bold;
+    background-color: #3498db; /* Albastru vibrant */
+    color: #fff;
+    border-radius: 5px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn:hover {
+    transform: scale(1.05); 
+    box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.4); /* O umbră albastră subtilă */
+}
+
+/* Navigation bar */
+.navbar {
+    box-shadow: 1px -1px 8px 0 rgba(41, 128, 185, 0.6); /* Albastru moderat */
+    border: 2px solid rgba(41, 128, 185, 0.3); /* Albastru pal */
+    background-color: #2980b9; /* Un albastru vibrant pentru navbar */
+}
+
+/* Logo */
+.navbar-brand {
+    font-family: 'Oswald', sans-serif;
+    font-weight: bold;
+    font-size: 35px;
+    letter-spacing: 1px;
+    color: #ecf0f1; /* Gri deschis pentru contrast */
+}
+
+.navbar-brand:hover {
+    color: #f39c12; /* Portocaliu vibrant la hover */
+}
+
+a.nav-link {
+    color: #ecf0f1; /* Culoare deschisă pentru legături */
+    font-family: 'Lato', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.navbar-nav .nav-link.active, 
+.navbar-nav .nav-link.show  {
+    color: #f39c12; /* Portocaliu vibrant pentru linkuri active */
+}
+
+.nav-link:hover {
+    font-weight: bold;
+    color: #f39c12; /* Portocaliu vibrant la hover */
+}
+
+header {
+    margin-bottom: 0;
+}
+
+/* Footer */
+footer {
+    flex-shrink: 0;
+    text-align: center;
+    box-shadow: 1px -1px 8px 0 rgba(41, 128, 185, 0.6);
+    border: 2px solid rgba(41, 128, 185, 0.3);
+    background-color: #2c3e50; /* Un gri-albastru elegant */
+    padding: 10px;
+} 
+
+footer p {
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    color: #ecf0f1;
+    font-weight: 450;
+    margin-bottom: 0;
+}
+    
+footer > a {
+    margin-right: 30px;
+    font-size: x-large; 
+    color: #f39c12; /* Portocaliu vibrant */
+}
+
+.social-links:hover {
+    color: #f39c12;
+    font-weight: bold;
+    transform: scale(1.5);
+}
+
+.social-links {
+    transition: all 0.3s linear;
+}
+
+/* Index Page */
+/* Hero image and about section */
+.image-background {
+    height: 100vh;
+    min-height: 500px;
+    background-image: url("https://res.cloudinary.com/dpzitpjjc/image/upload/v1707249301/media/hero-image_sg6s7s.webp"); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.with-shadow {
+    box-shadow: 0px 0px 0px 2px rgba(241, 196, 15, 0.9); /* O umbră galbenă caldă */
+    background-color: rgba(52, 152, 219, 0.9); /* Albastru vibrant */
+    padding: 15px; 
+    border-radius: 10px; 
+    width: 80%; 
+    max-width: 600px;  
+    margin: 0 auto; 
+} 
+  
+.display-1 {
+    font-family: 'Lato', sans-serif;
+    font-size: x-large;
+    font-weight: 400;
+    color: #ecf0f1;
+    margin-bottom: 15px;
+} 
+  
+.lead {
+    line-height: 1.5;
+    color: #ecf0f1;
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
+}  
+
+.btn-dark {
+    border: none; 
+    border-radius: 5px; 
+    background-color: #e74c3c; /* Roșu vibrant */
+    color: #fff; 
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.btn-dark:hover {
+    background-color: #c0392b; /* Roșu mai închis la hover */
+}
+
+/* Login and Signup Form */
+.card {
+    border-color: #34495e; /* Albastru-gri profund */
+    box-shadow: 1px -1px 8px #34495e;
+}
+
+.card-bg {
+    background-color: #3498db; /* Albastru vibrant */
+}
+
+.login, .signup {
+    max-width: 400px; 
+    margin: 0 auto; 
+    padding: 20px; 
+    background-color: #fff; 
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1); 
+}
+
+.login input[type="text"],
+.login input[type="password"],
+.signup input[type="text"],
+.signup input[type="email"],
+.signup input[type="password"] {
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 5px; 
+    border: 1px solid #bdc3c7; 
+    border-radius: 5px; 
+}
+
+.btn-signup {
+    width: 100%; 
+    padding: 10px; 
+    border: none; 
+    border-radius: 5px; 
+    background-color: #2ecc71; /* Verde vibrant */
+    color: #fff; 
+    cursor: pointer; 
+}
+
+.btn-signup:hover {
+    background-color: #27ae60; /* Verde mai închis la hover */
+}
+
+/* Recipe List Page */
+.recipe-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-content {
+    font-size: 16px;
+    color: #2c3e50; /* Gri-albastru profund */
+}
+
+.btn-primary {
+    background-color: #e67e22; /* Portocaliu cald */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #d35400; /* Portocaliu mai închis la hover */
+}
+
+/* Recipe List Pagination */
+.page-link {
+    background-color: #3498db; /* Albastru vibrant */
+    font-weight: bold;
+    color: white;
+    border: 2px solid #2980b9; /* Albastru mai închis */
+}
+
+.pagination {
+    margin-bottom: 30px;
+}
+
+/* Recipe details */
+.image {
+    width: 100%;
+    height: auto;
+}
+
+.like-icon {
+    font-size: 27px;
+    color: #e74c3c; /* Roșu vibrant */
+}
+
+.liked {
+    color: #c0392b; /* Roșu mai închis */
+}
+
+.spacer {
+    margin-left: 30px;
+}
+
+.spacer-font {
+    font-size: 20px;
+}
+
+.btn-spacing {
+    margin-right: 14px;
+}
+
+.title-container h1,
+.ingredients-container p,
+.instructions-container p {
+    word-wrap: break-word;
+}
+
+.ingredients-container {
+    font-size: 18px;
+    font-family: 'Lato', sans-serif;
+    color: #34495e; /* Gri-albastru profund */
+}
+
+.instructions-container p {
+    font-size: 18px;
+    font-family: 'Lato', sans-serif;
+    color: #34495e; /* Gri-albastru profund */
+}
+
+/* Error Page */
+.lead-text {
+    line-height: 1.5;
+    color: #2c3e50; /* Gri-albastru profund */
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
+}
+
+/* Search Recipes Page */
+.search-form {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 8px;
+    border: 1px solid #2980b9; /* Albastru închis */
+    background-color: #ecf0f1; /* Gri deschis */
+    border-radius: 5px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group {
+    flex: 1;
+    padding: 8px;
+}
+
+.search-input {
+    margin-right: 8px;
+}
+
+.search-btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #2980b9; /* Albastru vibrant */
+    color: #fff;
+    transition: background-color 0.3s; 
+}
+
+.search-btn:hover {
+    background-color: #3498db; /* Albastru mai deschis la hover */
+}
+
+/* Card Deck */
+.card-deck {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px; /* Spațiu suplimentar între carduri pe verticală */
+}
+
+.card {
+    flex: 1 0 30%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%; /* Asigură că toate cardurile se întind pe toată înălțimea disponibilă */
+}
+
+.card-body {
+    flex-grow: 1; /* Face ca corpul cardului să ocupe tot spațiul disponibil */
+}
+
+.card-footer {
+    margin-top: auto; /* Păstrează subsolul cardului la partea de jos */
+    background-color: #ecf0f1; /* Gri deschis */
+}
+
+
+.light-on {
+    background-color: #dff0d8; /* Verde deschis */
+    border-left: 5px solid #3c763d; /* Verde închis */
+}
+
+.light-off {
+    background-color: #f2dede; /* Roșu deschis */
+    border-left: 5px solid #a94442; /* Roșu închis */
+}
+
+
+.light-on {
+    background-color: #d1f2eb; /* Culoare deschisă pentru lumina pornită */
+    color: #1abc9c; /* Text verde pentru lumina pornită */
+}
+
+.light-off {
+    background-color: #f2d7d5; /* Culoare închisă pentru lumina oprită */
+    color: #e74c3c; /* Text roșu pentru lumina oprită */
+}
+
+/* Stil pentru navbar-brand și linkurile active */
+.navbar-brand.active, .nav-link.active, .navbar-brand {
+    color: #1abc9c; /* Verde pentru a reflecta activitatea */
+    font-weight: bold;
+    text-shadow: 0px 0px 5px rgba(26, 188, 156, 0.7); /* Efect de strălucire */
+}
+
+.navbar-brand:hover {
+    color: #16a085; /* Schimbare de culoare la hover */
+}
+
+.nav-link:hover {
+    color: #16a085; /* Schimbare de culoare la hover */
+}

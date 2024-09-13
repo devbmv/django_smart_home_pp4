@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %} Access Denied {% endblock %}
+
+{% block content %}
+<!-- Custom 403 Error Message -->
+<div class="container-fluid mt-5 text-center justify-content-center">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="mt-3 mb-4">403 FORBIDDEN <i class="fa-regular fa-face-frown"></i></h1>
+            <p class="lead-text"><strong>Oops!! Access Denied.</strong> You do not have permission to access this page. 
+                Please click the button below to return to the home page and continue browsing.
+            </p>
+            <a href="{% url 'home' %}" class="btn btn-primary mb-5">Go to Home Page</a>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

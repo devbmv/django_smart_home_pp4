@@ -1,0 +1,232 @@
+[
+    {
+        "room": "Bathroom",
+        "light": "Vanity Lights",
+        "state": "on"
+    },
+    {
+        "room": "Bathroom",
+        "light": "Recessed Ceiling Lights",
+        "state": "on"
+    },
+    {
+        "room": "Bathroom",
+        "light": "Wall Sconces",
+        "state": "on"
+    },
+    {
+        "room": "Bathroom",
+        "light": "Overhead Ceiling Light",
+        "state": "on"
+    },
+    {
+        "room": "Bathroom",
+        "light": "Mirror Lighting",
+        "state": "on"
+    },
+    {
+        "room": "Bathroom",
+        "light": "Night Light",
+        "state": "on"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Bedside Lamp",
+        "state": "on"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Ceiling Fan with Light",
+        "state": "off"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Pendant Light",
+        "state": "on"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Wall-mounted Reading Lights",
+        "state": "on"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Dresser Lamp",
+        "state": "on"
+    },
+    {
+        "room": "Bedroom",
+        "light": "Ambient Lighting",
+        "state": "on"
+    },
+    {
+        "room": "Dining Room",
+        "light": "Chandelier",
+        "state": "off"
+    },
+    {
+        "room": "Dining Room",
+        "light": "Pendant Lights",
+        "state": "off"
+    },
+    {
+        "room": "Dining Room",
+        "light": "Recessed Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Dining Room",
+        "light": "Wall Sconces",
+        "state": "off"
+    },
+    {
+        "room": "Dining Room",
+        "light": "Buffet Lamp",
+        "state": "on"
+    },
+    {
+        "room": "Hallways and Corridors",
+        "light": "Recessed Ceiling Lights",
+        "state": "on"
+    },
+    {
+        "room": "Hallways and Corridors",
+        "light": "Wall Sconces",
+        "state": "off"
+    },
+    {
+        "room": "Hallways and Corridors",
+        "light": "Track Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Hallways and Corridors",
+        "light": "Pendant Lights",
+        "state": "off"
+    },
+    {
+        "room": "Home Office",
+        "light": "Desk Lamp",
+        "state": "off"
+    },
+    {
+        "room": "Home Office",
+        "light": "Overhead Ceiling Light",
+        "state": "off"
+    },
+    {
+        "room": "Home Office",
+        "light": "Floor Lamp",
+        "state": "off"
+    },
+    {
+        "room": "Home Office",
+        "light": "Task Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Home Office",
+        "light": "Wall-mounted Reading Lights",
+        "state": "off"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Overhead Ceiling Light",
+        "state": "on"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Pendant Lights",
+        "state": "off"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Under-Cabinet Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Recessed Ceiling Lights",
+        "state": "off"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Track Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Kitchen",
+        "light": "Range Hood Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Ceiling Light",
+        "state": "on"
+    },
+    {
+        "room": "Living Room",
+        "light": "Chandelier",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Floor Lamp",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Table Lamp",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Wall Sconce",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Recessed Lighting",
+        "state": "on"
+    },
+    {
+        "room": "Living Room",
+        "light": "Track Lighting",
+        "state": "off"
+    },
+    {
+        "room": "Living Room",
+        "light": "Accent Lighting",
+        "state": "on"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "Outdoor Wall Lights",
+        "state": "off"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "Pathway Lights",
+        "state": "off"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "String Lights",
+        "state": "off"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "Floodlights",
+        "state": "off"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "Lanterns",
+        "state": "off"
+    },
+    {
+        "room": "Outdoor Spaces(e.g.,Patio,Porch)",
+        "light": "Motion Sensor Lights",
+        "state": "on"
+    }
+]

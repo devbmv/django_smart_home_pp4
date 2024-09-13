@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M5Stack Control</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    .container {
+      display: inline-block;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .control {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>M5Stack Control</h1>
+    <div class="control">
+      <label for="boolSwitch">Lights:</label>
+      <input type="checkbox" id="boolSwitch" onchange="updateBool()">
+    </div>
+    <div class="control">
+      <label for="intSlider">Lights Itensity:</label>
+      <input type="range" id="intSlider" min="0" max="100" onchange="updateInt()">
+      <span id="intValue">50</span>
+    </div>
+    <div class="control">
+      <label for="stringInput">String Input:</label>
+      <input type="text" id="stringInput" oninput="updateString()">
+    </div>
+  </div>
+
+  <script>
+    function updateBool() {
+      const boolValue = document.getElementById('boolSwitch').checked;
+      fetch(`/updateBool?value=${boolValue}`);
+    }
+
+    function updateInt() {
+      const intValue = document.getElementById('intSlider').value;
+      document.getElementById('intValue').innerText = intValue;
+      fetch(`/updateInt?value=${intValue}`);
+    }
+
+    function updateString() {
+      const stringValue = document.getElementById('stringInput').value;
+      fetch(`/updateString?value=${stringValue}`);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+{% load static %}
+
+<!-- urls to apply active class to active links -->
+{% url 'index' as index_url %}
+{% url 'room_list' as room_list_url %}
+{% url 'add_room' as add_room_url %}
+{% url 'add_light' as add_light_url %}
+{% url 'user_settings' as user_settings_url %}
+{% url 'room_drafts' as room_drafts_url %}
+{% url 'account_login' as login_url %}
+{% url 'account_signup' as signup_url %}
+{% url 'account_logout' as logout_url %}
+{% url 'uart_page' as uart_page_url %}
+{% url 'update_esp_firmware' as update_esp_firmware_url %}
+
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <!-- Logo -->
+      <a class="navbar-brand" href="{% url 'home' %}">Smart Home <i class="fa-solid fa-home"></i></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+        aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation Menu -->
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == index_url %}active{% endif %}" aria-current="page"
+              href="{% url 'home' %}">Home</a>
+          </li>
+
+          {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == room_list_url %}active{% endif %}" aria-current="page"
+              href="{% url 'room_list' %}">Rooms</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == add_room_url %}active{% endif %}" aria-current="page"
+              href="{% url 'add_room' %}">New Room</a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == add_light_url %}active{% endif %}" aria-current="page"
+              href="{% url 'add_light' %}">New Light</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == user_settings_url %}active{% endif %}" aria-current="page"
+              href="{% url 'user_settings' %}">Settings</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == uart_page_url %}active{% endif %}" aria-current="page"
+              href="{% url 'uart_page' %}">UART</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == update_esp_firmware_url %}active{% endif %}" aria-current="page"
+              href="{% url 'update_esp_firmware' %}">Update</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == logout_url %}active{% endif %}" aria-current="page"
+              href="{% url 'account_logout' %}">Logout</a>
+          </li>
+
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == signup_url %}active{% endif %}" aria-current="page"
+              href="{% url 'account_signup' %}">Register</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == login_url %}active{% endif %}" aria-current="page"
+              href="{% url 'account_login' %}">Login</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    {% if user.is_authenticated %}
+    <span id="server-status" class="badge ms-3 bg-danger">Server Offline</span>
+
+    <p class="text-end m-3 text-nowrap d-flex align-items-center justify-content-end"
+      style="font-weight: 500; font-size: 1rem;">
+      <i class="fas fa-user-check text-success me-2" data-bs-toggle="tooltip" data-bs-placement="top"
+        title="Logged in since: {{ user.last_login|date:'d M Y H:i' }}"></i>
+      You are logged in as <b class="ms-1">{{ user|upper }}</b>
+      <span class="badge bg-primary ms-2" data-bs-toggle="tooltip" data-bs-placement="top"
+        title="Number of rooms you have">
+        {{ user.rooms.count }}
+      </span>
+    </p>
+    {% else %}
+    <p class="text-end m-3 text-nowrap d-flex align-items-center justify-content-end"
+      style="font-weight: 500; font-size: 1rem;">
+      <i class="fas fa-user-slash text-danger me-2" data-bs-toggle="tooltip" data-bs-placement="top"
+        title="You are not logged in"></i>
+      You are not logged in.
+      <a class="nav-link d-inline p-0 ms-1 login-link" href="{% url 'account_login' %}">
+        Log in here
+      </a>
+    </p>
+    {% endif %}
+  </nav>
+
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-8 offset-md-2">
+        {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show autoCloseAlert" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const alerts = document.querySelectorAll('.autoCloseAlert');
+
+      alerts.forEach(alert => {
+        setTimeout(function () {
+          // Hide the alert by removing the 'show' class and adding 'fade' class for smooth transition
+          alert.classList.remove('show');
+          alert.classList.add('fade');
+
+          // Completely remove the alert from DOM after the transition ends
+          setTimeout(function () {
+            alert.style.display = 'none';
+          }, 500); // Waiting for the fade transition to complete
+        }, 3000); // The alert will disappear after 3 seconds
+      });
+    });
+  </script>
+</header>

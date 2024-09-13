@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Firmware</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+
+  <h2>Update Firmware</h2>
+  <p>Please select the firmware file to upload (.bin, .ini, .cpp)</p>
+  <form id="uploadForm" method="POST" action="/update_firmware" enctype="multipart/form-data">
+    <label for="firmware">Choose firmware file:</label>
+    <input type="file" id="firmware" name="firmware" accept=".bin,.ini,.cpp" required aria-label="Firmware File">
+    <button type="submit">Upload Firmware</button>
+  </form>
+  <div class="progress">
+    <div class="progress-bar"></div>
+  </div>
+  <div class="info"></div>
+
+  <div>
+    <label for="message">Message: </label>
+    <input type="text" id="message" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <div id="messages">
+    <h3>Messages:</h3>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const progressBar = document.querySelector('.progress-bar');
+    const info = document.querySelector('.info');
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const request = new XMLHttpRequest();
+      request.open('POST', form.action, true);
+      request.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressBar.style.width = percentComplete + '%';
+          info.textContent = 'Uploading ' + percentComplete.toFixed(2) + '%';
+        }
+      };
+      request.onload = function () {
+        if (request.status == 200) {
+          progressBar.style.width = '100%';
+          info.textContent = 'Upload complete.';
+        } else {
+          info.textContent = 'Upload failed. Please try again.';
+        }
+      };
+      request.send(formData);
+    });
+
+    let socket = new WebSocket("ws://" + window.location.hostname + ":81/");
+
+    socket.onopen = function () {
+      console.log("Connected to WebSocket server");
+      document.getElementById('messages').innerHTML += '<p>Connected</p>';
+    };
+
+    socket.onmessage = function (event) {
+      let messages = document.getElementById('messages');
+      let message = document.createElement('p');
+      message.textContent = event.data;
+      messages.appendChild(message);
+    };
+
+    socket.onclose = function () {
+      console.log("Disconnected from WebSocket server");
+      document.getElementById('messages').innerHTML += '<p>Disconnected</p>';
+    };
+
+    function sendMessage() {
+      let input = document.getElementById('message');
+      socket.send(input.value);
+      input.value = '';
+    }
+  </script>
+</body>
+
+</html>

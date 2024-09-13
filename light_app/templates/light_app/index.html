@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% block content %}
+
+<div class="container text-center mt-5">
+    <h1 class="display-4">Welcome to My Smart Home Project</h1>
+    <p class="lead">This is a simple Django project designed to manage and control smart devices in a home environment.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title">Manage Rooms & Control Lights</h2>
+                    <p class="card-text">Organize your smart devices by room. Switch your lights on and off with ease. Monitor the status of all your lights in real-time. Add, edit, or delete rooms as needed.</p>
+                    {% if user.is_authenticated %}
+                    <a class="btn btn-primary btn-lg mt-3" href="{% url 'room_list' %}">View Rooms</a>
+                    {% else %}
+                    <a class="btn btn-warning btn-lg mt-3" aria-current="page" href="{% url 'account_signup' %}">Register</a>
+                    <a class="btn btn-secondary btn-lg mt-3" aria-current="page" href="{% url 'account_login' %}">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title">Customize Settings</h2>
+                    <p class="card-text">Customize your smart home settings to suit your preferences.</p>
+                    {% if user.is_authenticated %}
+                    <a class="btn btn-warning btn-lg mt-3" href="{% url 'user_settings' %}">Settings</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% if user.is_authenticated %}
+<div id="topNotification" class="alert alert-success alert-dismissible fade show" role="alert" style="display: none;">
+    Welcome to Smart Home System!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endif %}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const notification = document.getElementById('topNotification');
+        if (notification) {
+            notification.style.display = 'block';
+            setTimeout(function () {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    });
+
+</script>
+
+{% endblock %}

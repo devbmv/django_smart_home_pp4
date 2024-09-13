@@ -1,0 +1,164 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Smart Home">
+    <meta name="keywords" content="Smart home, esp32 arduino, django">
+    <meta name="author" content="Smart Home">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+    <!-- Bootstrap 5 JS Bundle (include Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+
+    <!-- Font Awesome link -->
+    <script src="https://kit.fontawesome.com/eed8f7b915.js" crossorigin="anonymous"></script>
+
+    <!-- Google Fonts CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Oswald:wght@300;400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="#">
+    <link rel="icon" type="image/png" sizes="32x32" href="#">
+    <link rel="icon" type="image/png" sizes="16x16" href="#">
+
+    <!-- Custom CSS link -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>{% block title %} Smart Home {% endblock %}</title>
+    <style>
+        :root {
+            --primary-color: #2471a1;
+        }
+    </style>
+
+</head>
+
+<body
+    class="{% if request.user.is_authenticated %}{{ request.user.usersettings.theme }} {{ request.user.usersettings.font_size }}{% endif %}">
+    <!-- Header Navigation Content -->
+    {% include 'includes/header.html' %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer Content -->
+    {% include 'includes/footer.html' %}
+
+    <!-- JavaScript Code -->
+    {% block sound %}
+    {% if user.is_authenticated %}
+    <script>
+        const onlineSound = new Audio("{% static 'sound/hello_my_friend.wav' %}");
+        const offlineSound = new Audio("{% static 'sound/good_bye.wav' %}");
+    </script>
+    {% endif %}
+    {% endblock sound %}
+
+    {% block main_js %}
+    {% if user.is_authenticated %}
+    <script>
+        let lastServerStatus = localStorage.getItem('lastServerStatus');
+        let silence = true;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const serverStatusElement = document.getElementById("server-status");
+
+            const serverCheckInterval = Number("{{ user.usersettings.server_check_interval|default:5 }}") * 1000;
+
+            // Datele de autentificare sunt transmise din backend
+            const username = "{{ user.username }}"; // Obținem numele utilizatorului din șablon
+            const password = "{{ user.usersettings.api_password }}"; // Presupunând că parola pentru API este stocată în UserSettings
+
+            console.log("Username: ", username); // Debugging
+            console.log("Password: ", password); // Debugging
+            
+            function checkServerStatus() {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout
+
+                // Logăm datele de autentificare
+                const authHeader = 'Basic ' + btoa(username + ':' + password);
+                console.log("Authorization header: ", authHeader); // Debugging
+
+                fetch("{% url 'check_server_status' %}", {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': authHeader,  // Adăugăm antetul de autentificare
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    signal: controller.signal
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    clearTimeout(timeoutId);
+                    console.log("Server status response:", data);
+
+                    if (serverStatusElement) {
+                        const serverOnline = data.server_online;
+                        const silence_mode = data.silence_mode;
+
+                        // Verifică tranziția de la offline la online
+                        if (serverOnline && lastServerStatus === "false" && !silence_mode) {
+                            onlineSound.play();
+                        }
+
+                        // Verifică tranziția de la online la offline
+                        if (!serverOnline && lastServerStatus === "true"&&!silence_mode) {
+                            offlineSound.play();
+                        }
+
+                        // Actualizează starea serverului
+                        lastServerStatus = serverOnline ? "true" : "false";
+                        localStorage.setItem('lastServerStatus', lastServerStatus);
+
+                        // Actualizează interfața cu utilizatorul
+                        serverStatusElement.textContent = serverOnline ? "Server Online" : "Server Offline";
+                        serverStatusElement.classList.toggle("bg-success", serverOnline);
+                        serverStatusElement.classList.toggle("bg-danger", !serverOnline);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking server status:", error);
+
+                    if (serverStatusElement) {
+                        if (lastServerStatus === "true") {
+                            offlineSound.play();
+                        }
+
+                        serverStatusElement.textContent = "Server Offline";
+                        serverStatusElement.classList.remove("bg-success");
+                        serverStatusElement.classList.add("bg-danger");
+
+                        lastServerStatus = "false";
+                        localStorage.setItem('lastServerStatus', lastServerStatus);
+                    }
+                });
+            }
+
+            setInterval(checkServerStatus, serverCheckInterval);
+        });
+    </script>
+    {% endif %}
+    {% endblock main_js %}
+</body>
+
+</html>

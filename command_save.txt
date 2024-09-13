@@ -1,0 +1,11 @@
+python -m venv venv
+venv\Scripts\activate
+
+heroku config:set DEVELOPMENT="True" -a django-smart-home-pp4
+heroku config:get DEVELOPMENT -a django-smart-home-pp4
+
+
+git stash
+git fetch origin
+git reset --hard origin/main
+git clean -fd
