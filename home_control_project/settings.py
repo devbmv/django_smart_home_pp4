@@ -20,16 +20,17 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ALLOWED_HOSTS = [
-    "cppdoth.ddns.net",
-    "127.0.0.1",
-    "0.0.0.0",
-    "192.168.1.16",
-    ".herokuapp.com",
-    "localhost",
-    "testserver",
-    "86.45.36.88",  # Adresa IP publică a routerului tău
-    "192.168.1.15",  # Adresa IP publică a routerului tău
-    "192.168.1.7",
+    "*",
+    # "cppdoth.ddns.net",
+    # "127.0.0.1",
+    # "0.0.0.0",
+    # "192.168.1.16",
+    # ".herokuapp.com",
+    # "localhost",
+    # "testserver",
+    # "86.45.36.88",  # Adresa IP publică a routerului tău
+    # "192.168.1.15",  # Adresa IP publică a routerului tău
+    # "192.168.1.7",
 ]
 
 if DEBUG:

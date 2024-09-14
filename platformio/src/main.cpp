@@ -10,6 +10,7 @@
 #include <mbedtls/md.h>
 #include <mbedtls/sha1.h>
 #include <map>
+#include <SPIFFS.h>
 #include <Update.h>
 #include <WebSocketsServer.h>
 #include <mbedtls/entropy.h>
@@ -18,16 +19,13 @@
 
 //============================================================================
 
-// Structures to hold light information dynamically
 struct Light;
 
 struct Room;
 
-// Map to store rooms and their associated lights
 std::map<String, Room> roomLightMap;
 
 //============================================================================
-
 mbedtls_entropy_context entropy;
 mbedtls_ctr_drbg_context ctr_drbg;
 
@@ -45,7 +43,8 @@ String base64Encode(String str);
 void addBasicAuth(HTTPClient &http);
 void displayText(String text, int x, int y);
 void reconnectWiFi();
-bool checkServerStatus();
+void debug(String msg, uint16_t col, uint16_t row);
+void checkServerStatus();
 void fetchInitialLightStates();
 void printLightStates();
 void serverSetup();
@@ -59,6 +58,7 @@ void runMainLoop();
 void debug(String msg, uint16_t col, uint16_t row);
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
+WiFiClientSecure client;
 uint16_t serverCheckInterval = 3000; // Interval to check the server status
 bool localServer = true;             // Variable that determines if using local or Heroku server
 
@@ -89,6 +89,7 @@ void init_rng()
     const char *personalization = "ssl_rng";
     int ret = mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy,
                                     (const unsigned char *)personalization, strlen(personalization));
+
     if (ret != 0)
     {
         Serial.println("Failed to initialize RNG.");
@@ -99,18 +100,57 @@ void init_rng()
     }
 }
 
+void monitorHeap(String tag)
+{
+    Serial.printf("[%s] Free heap memory: %d bytes\n", tag.c_str(), ESP.getFreeHeap());
+}
+
+void monitorMaxAllocHeap(String tag)
+{
+    Serial.printf("[%s] Max allocable heap memory: %d bytes\n", tag.c_str(), ESP.getMaxAllocHeap());
+}
+#include <SPIFFS.h>
+File certFile;
+void spiffsInit()
+{
+    if (!SPIFFS.begin(true))
+    {
+        Serial.println("An error has occurred while mounting SPIFFS");
+        return;
+    }
+    else
+    {
+        Serial.println("SPIFFS mounted successfully");
+    }
+
+    // Example: List all files in SPIFFS
+    File root = SPIFFS.open("/");
+    File file = root.openNextFile();
+    while (file)
+    {
+        Serial.print("FILE: ");
+        Serial.println(file.name());
+        file = root.openNextFile();
+    }
+
+    // Open certificate file
+    certFile = SPIFFS.open("/cert.pem", "r");
+    if (!certFile)
+    {
+        Serial.println("Failed to open cert.pem");
+        return;
+    }
+    else
+    {
+        Serial.printf("Cert file opened successfully, size: %d bytes\n", certFile.size());
+    }
+}
+
 void setup()
 {
-    // Adaugă taskul curent în watchdog
-    Serial.printf("Heap Free: %d bytes\n", ESP.getFreeHeap());
-
-    init_rng();
-    initializeSystem();
-    if (ESP.getMaxAllocHeap() < 500)
-    {
-        Serial.print("Low memory: Unable to allocate space for JSON parsing.");
-        Serial.println(ESP.getMaxAllocHeap());
-    }
+    initializeSystem(); // Inițializare sistem
+    // init_rng();
+    reconnectWiFi(); // Conectare la Wi-Fi
 }
 
 //============================================================================
@@ -124,8 +164,15 @@ void loop()
 
 void initializeSystem()
 {
+#ifdef M5CORE2
+    auto cfg = M5.config();
+    M5.begin(cfg);
+    M5.Display.setTextSize(2);
+    M5.Display.setCursor(0, 0);
+    M5.Display.fillScreen(BLACK); // Clear the screen
+#endif
+    monitorHeap("Begin Setup");
     Serial.begin(115200);
-
     if (djangoUserName.isEmpty() || djangoPassword.isEmpty())
     {
         debug("Django credentials are missing.", 0, 0);
@@ -140,15 +187,8 @@ void initializeSystem()
         delay(setup_debug_time);
     }
 
-#ifdef M5CORE2
-    auto cfg = M5.config();
-    M5.begin(cfg);
-    M5.Display.setTextSize(2);
-    M5.Display.setCursor(0, 0);
-    M5.Display.fillScreen(BLACK); // Clear the screen
-#endif
-
     reconnectWiFi();
+    client.setInsecure();
     delay(setup_debug_time);
     displayIP();
     delay(setup_debug_time);
@@ -158,8 +198,7 @@ void initializeSystem()
     // webSocket.begin();
     // webSocket.onEvent(webSocketEvent); // Funcția de gestiune a evenimentelor WebSocket
     delay(setup_debug_time);
-    checkServerStatus();
-    delay(setup_debug_time);
+    monitorHeap("End Setup");
 }
 
 //============================================================================
@@ -178,6 +217,7 @@ void runMainLoop()
         processSerialCommands(); // Continuously process serial commands
         // sendWebSocketMessage("Hello from ESP32!");
         serverTimer = millis();
+        monitorHeap("In Loop");
     }
 }
 
@@ -232,7 +272,6 @@ void monitorHeap()
 void sendMessage(String data)
 {
     debug("Starting HTTP POST request to server...", 0, 0);
-
     if (WiFi.status() != WL_CONNECTED)
     {
         debug("I am  try to reconnect to Wi-Fi", 0, 20);
@@ -241,9 +280,9 @@ void sendMessage(String data)
 
     if (WiFi.status() == WL_CONNECTED)
     {
-        // Creăm un obiect local HTTPClient
         HTTPClient http;
 
+        // Creăm un obiect local HTTPClient
         // Verificăm dacă URL-ul este valid înainte de a iniția cererea
         if (!serverCheckUrl.startsWith("http"))
         {
@@ -251,7 +290,7 @@ void sendMessage(String data)
             return;
         }
 
-        WiFiClient client; // Sau WiFiClientSecure, dacă folosești SSL
+        // WiFiClientSecure client; // Sau WiFiClientSecure, dacă folosești SSL
         http.begin(client, serverCheckUrl);
 
         http.setTimeout(30000); // Setează timeout-ul pentru HTTP
@@ -370,7 +409,7 @@ void processSerialCommands()
             localServer = !localServer;
             Serial.println("Local server: " + String(localServer));
         }
-        else if (input = "!check")
+        else if (input == "!check")
         {
             checkServer = !checkServer;
             Serial.println("Check server is: " + String(checkServer ? "ON" : "OFF"));
@@ -416,57 +455,127 @@ void displayText(String text, int x, int y)
 #endif
 }
 
-//============================================================================
-bool checkServerStatus() {
-    if (WiFi.status() == WL_CONNECTED) {
-        HTTPClient http;
-
-        if (!serverCheckUrl.startsWith("http")) {
-            if (!clientIPAddress.isEmpty()) {
-                serverCheckUrl = "http://" + clientIPAddress + ":8000/status_response_for_esp32/";
-                Serial.println("ServerCheckUrl auto-setat la: " + serverCheckUrl);
-            } 
-        }
-
-        // Verifică URL-ul serverului
-        Serial.println("Verific URL-ul: " + serverCheckUrl);
-        http.begin(serverCheckUrl);
-        addBasicAuth(http);
-        http.setTimeout(30000);
-
-        Serial.println("\nSending request to check server status...");
-
-        int httpResponseCode = http.GET();
-
-        if (httpResponseCode >= 200 && httpResponseCode < 300) {
-            Serial.println("Success! Server response:");
-            Serial.println(http.getString());
-        } else if (httpResponseCode == -1) {
-            // Afișează eroarea de conexiune
-            Serial.println("Connection failed. Check WiFi, server address, or firewall.");
-        } else if (httpResponseCode >= 300 && httpResponseCode < 400) {
-            Serial.printf("Redirection error: %d\n", httpResponseCode);
-            Serial.println("Server is trying to redirect.");
-        } else if (httpResponseCode >= 400 && httpResponseCode < 500) {
-            Serial.printf("Client error: %d\n", httpResponseCode);
-            Serial.println("Possible authentication or request issue.");
-            Serial.println(http.getString());
-        } else if (httpResponseCode >= 500) {
-            Serial.printf("Server error: %d\n", httpResponseCode);
-            Serial.println("Server might be down or there is an internal error.");
-            Serial.println(http.getString());
-        } else {
-            Serial.printf("Unexpected error: %d\n", httpResponseCode);
-        }
-
-        http.end();
-    } else {
-        Serial.println("WiFi not connected.");
-        displayText("WiFi not connected", 0, 0);
-    }
-    return false;
+bool isLocalServer(const String &ipAddress)
+{
+    // Verificăm dacă adresa IP este locală (192.168.x.x, 10.x.x.x sau 127.0.0.1)
+    return ipAddress.startsWith("192.168") || ipAddress.startsWith("10.") || ipAddress == "127.0.0.1";
 }
 
+void checkServerStatus()
+{
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        HTTPClient http;
+        http.begin(client, "https://django-smart-home-pp4-5da5db75b93b.herokuapp.com/status_response_for_esp32/"); // Inițiază conexiunea către server
+
+        int httpResponseCode = http.GET(); // Execută cererea GET
+
+        if (httpResponseCode > 0)
+        {
+            // Dacă cererea a avut succes, citește răspunsul
+            String response = http.getString();
+            Serial.println("GET Response: " + response);
+        }
+        else
+        {
+            Serial.println("Error on HTTP GET: " + String(httpResponseCode));
+        }
+
+        http.end(); // Închide conexiunea
+    }
+    else
+    {
+        Serial.println("WiFi not connected");
+    }
+    // if (WiFi.status() == WL_CONNECTED)
+    // {
+    //     HTTPClient http;
+
+    //     // Creăm un obiect local HTTPClient
+    //     client.setInsecure(); // Folosește acest lucru pentru a dezactiva verificările SSL (nu este recomandat în producție).
+
+    //     // Verificăm dacă URL-ul este valid
+    //     if (!serverCheckUrl.startsWith("http"))
+    //     {
+    //         if (!clientIPAddress.isEmpty())
+    //         {
+    //             // Verificăm dacă este un server local sau Heroku pe baza adresei IP
+    //             if (isLocalServer(clientIPAddress))
+    //             {
+    //                 // Dacă serverul este local, adăugăm portul 8000
+    //                 serverCheckUrl = "http://" + clientIPAddress + ":8000/status_response_for_esp32/";
+    //                 Serial.println("ServerCheckUrl auto-setat pentru serverul local la: " + serverCheckUrl);
+    //             }
+    //             else
+    //             {
+    //                 // Dacă este pe Heroku, folosim URL-ul fără port (Heroku folosește port implicit pentru HTTPS)
+    //                 serverCheckUrl = "https://django-smart-home-pp4-5da5db75b93b.herokuapp.com/status_response_for_esp32/";
+    //                 Serial.println("ServerCheckUrl auto-setat pentru Heroku la: " + serverCheckUrl);
+    //             }
+    //         }
+    //         else
+    //         {
+    //             Serial.println("Invalid serverCheckUrl format și nu există client IP!");
+    //             String message = "Django is offline";
+    //             Serial.println(message);
+    //             displayText(message, 0, 0);
+    //         }
+    //     }
+
+    //     // Începe cererea HTTP
+    //     Serial.println("Verific URL-ul: " + serverCheckUrl);
+    //     http.begin(client, serverCheckUrl);
+    //     addBasicAuth(http);     // Adaugăm Basic Authentication
+    //     http.setTimeout(30000); // Setăm timeout-ul pentru HTTP
+
+    //     Serial.println("\nSending request to check server status...");
+
+    //     int httpResponseCode = http.GET();
+
+    //     if (httpResponseCode >= 200 && httpResponseCode < 300)
+    //     {
+    //         Serial.println("Success! Server response:");
+    //         Serial.println(http.getString());
+    //         debug("Django is Online", 0, 180);
+    //     }
+    //     else if (httpResponseCode == -1)
+    //     {
+    //         // Afișează eroarea de conexiune
+    //         Serial.println("Connection failed. Check WiFi, server address, or firewall.");
+    //         debug("Django is Offline", 0, 180);
+    //     }
+    //     else if (httpResponseCode >= 300 && httpResponseCode < 400)
+    //     {
+    //         Serial.printf("Redirection error: %d\n", httpResponseCode);
+    //         Serial.println("Server is trying to redirect.");
+    //         debug("Django is Offline", 0, 180);
+    //     }
+    //     else if (httpResponseCode >= 400 && httpResponseCode < 500)
+    //     {
+    //         Serial.printf("Client error: %d\n", httpResponseCode);
+    //         Serial.println("Possible authentication or request issue.");
+    //         Serial.println(http.getString());
+    //         debug("Django is Offline", 0, 180);
+    //     }
+    //     else if (httpResponseCode >= 500)
+    //     {
+    //         Serial.printf("Server error: %d\n", httpResponseCode);
+    //         Serial.println("Server might be down or there is an internal error.");
+    //         Serial.println(http.getString());
+    //         debug("Django is Offline", 0, 180);
+    //     }
+    //     else
+    //     {
+    //         Serial.printf("Unexpected error: %d\n", httpResponseCode);
+    //         debug("Django is Offline", 0, 180);
+    //     }
+    //     http.end(); // Încheie conexiunea
+    // }
+    // else
+    // {
+    //     debug("WiFi not connected.", 0, 180);
+    // }
+}
 
 //============================================================================
 void fetchInitialLightStates()
@@ -690,7 +799,6 @@ void serverSetup()
     response->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     request->send(response); });
 
- 
     //============================================================================
 
     // Handler pentru cererile POST
@@ -734,12 +842,28 @@ void serverSetup()
     }else{
     request->send(200,"text/plain","I am esp32 and you succesful checked, my status ONLINE");
 } });
-   //============================================================================
+    //============================================================================
 
-    server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)
-              {
-                  Serial.println(request->client()->remoteIP());
-                  request->send(200,"text/plain","SUcces received request"); }
-
-    );
+    server.begin();
 }
+
+//============================================================================
+
+// void sendWebSocketMessage(String message)
+// {
+//     for (int i = 0; i < webSocket.connectedClients(); i++)
+//     {
+//         webSocket.sendTXT(i, message); // Trimite mesajul fiecărui client conectat
+//         debug("WSMSG sended: " + message, 0, 100);
+//     }
+// }
+
+//============================================================================
+
+void debug(String msg, uint16_t col, uint16_t row)
+{
+    Serial.println(msg);
+    displayText(msg, col, row);
+}
+
+//============================================================================
