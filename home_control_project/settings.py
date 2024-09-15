@@ -164,7 +164,8 @@ print(f"Debug = {DEBUG}\n")
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://cppdoth.ddns.net",  # Asigură-te că hostname-ul No-IP este aici
+    'http://cppdoth.ddns.net',  # Dacă folosești HTTP
+    'https://cppdoth.ddns.net', 
     "https://*.herokuapp.com",
     "http://192.168.1.15:80",  # Add port if non-standard (e.g., 8000)
     "cppdoth.ddns.net",
