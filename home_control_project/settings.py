@@ -20,7 +20,9 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Allowed hosts configuration
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "*",
+]
 
 if DEBUG:
     SECURE_CROSS_ORIGIN_OPENER_POLICY = None
@@ -126,8 +128,13 @@ if DEBUG:
     if TEST_MODE:
         print("Environment Variables:\n")
         env_vars = [
-            "SECRET_KEY", "DEVELOPMENT", "DATABASE_URL", "CLOUDINARY_URL",
-            "TEST_MODE", "WIFI_SSID", "WIFI_PASSWORD",
+            "SECRET_KEY",
+            "DEVELOPMENT",
+            "DATABASE_URL",
+            "CLOUDINARY_URL",
+            "TEST_MODE",
+            "WIFI_SSID",
+            "WIFI_PASSWORD",
         ]
 
         for var in env_vars:
@@ -147,15 +154,18 @@ CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'http://cppdoth.ddns.net',
-    'https://cppdoth.ddns.net',
+    "http://cppdoth.ddns.net",
+    "https://cppdoth.ddns.net",
     "https://*.herokuapp.com",
+    "http://192.168.1.15:80",
     "http://192.168.1.15:80",
 ]
 
 # Password validation settings
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},

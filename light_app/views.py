@@ -16,53 +16,29 @@ from django.contrib.auth import update_session_auth_hash
 from time import sleep
 import threading
 from django.apps import AppConfig
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 # Variabile globale pentru controlul ping-ului
-ping_active = False
-
-
-import requests
-from django.conf import settings
-from time import sleep
-
-# Global variable for controlling the ping status
-ping_active = False
+ping_active = True
 
 
 def ping_esp32(user):
-    """
-    Pings the ESP32 to check if it's online.
-
-    Arguments:
-    user -- The user whose ESP32 settings are used for pinging.
-
-    This function stops pinging when it gets a successful response
-    or after an error occurs.
-    """
     global ping_active
     try:
         while ping_active:
             response = requests.get(
-                f"http://{user.usersettings.m5core2_ip}", timeout=50
+                f"http://{user.usersettings.m5core2_ip}", timeout=10
             )
-            if settings.TEST_MODE:
-                print(f"ESP32 response: {response.text}")
+            print(f"ESP32 response: {response.text}")
 
             if "You can stop sending pings" in response.text:
                 ping_active = False
-                if settings.TEST_MODE:
-                    print("ESP32 received IP. Stopping pings.")
+                print("ESP32 received IP. Stopping pings.")
             else:
                 sleep(5)
     except requests.RequestException as e:
-        if settings.TEST_MODE:
-            print(f"Error sending request to ESP32: {str(e)}")
-    finally:
-        ping_active = False
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+        print(f"Error sending request to ESP32: {str(e)}")
+        sleep(5)
 
 
 @csrf_exempt  # Dezactivează protecția CSRF pentru acest endpoint
@@ -86,87 +62,75 @@ def status_response_for_esp32(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
-from django.http import JsonResponse, HttpResponse
-from django.contrib.auth import authenticate
-import base64
-import requests
-from django.conf import settings
 
 @csrf_exempt
 def check_server_status(request):
-    """
-    Verifies the status of the server by checking the IP
-    and handling authentication.
-
-    Returns JSON response with the server status or an error message.
-    """
     django_server_ip = request.get_host()
-    
-    if settings.TEST_MODE:
-        print(f"Django server IP: {django_server_ip}")
-
+    print(f"Django server IP: {django_server_ip}")
+    # Extragem antetul Authorization
     auth_header = request.headers.get("Authorization")
-    
+
     if not auth_header:
-        if settings.TEST_MODE:
-            print("No Authorization header received")
+        print("No Authorization header received")
         return HttpResponse("Unauthorized", status=401)
 
-    if settings.TEST_MODE:
-        print(f"Authorization header: {auth_header}")
+    print(f"Authorization header: {auth_header}")
 
     try:
+        # Verificăm dacă tipul de autentificare este Basic
         auth_type, auth_string = auth_header.split(" ")
         if auth_type.lower() != "basic":
-            if settings.TEST_MODE:
-                print("Invalid authorization type")
+            print("Invalid authorization type")
             return HttpResponse("Unauthorized", status=401)
 
+        # Decodăm credentialele de autentificare
         decoded = base64.b64decode(auth_string).decode("utf-8")
         username, password = decoded.split(":")
-        
-        if settings.TEST_MODE:
-            print(f"Decoded username: {username}")
+        print(f"Decoded username: {username}")
 
+        # Autentificăm utilizatorul
         user = authenticate(username=username, password=password)
         if user is not None:
+            print(f"Authentication successful for user: {username}")
             request.user = user
         else:
-            if settings.TEST_MODE:
-                print(f"Authentication failed for user: {username}")
+            print(f"Authentication failed for user: {username}")
             return HttpResponse("Unauthorized", status=401)
     except Exception as e:
-        if settings.TEST_MODE:
-            print(f"Error during authentication: {str(e)}")
+        print(f"Error during authentication: {str(e)}")
         return HttpResponse("Unauthorized", status=401)
 
+    # Verificăm setările utilizatorului
     try:
         silence_mode = request.user.usersettings.silence_mode
-        server_online = False
-        
+
         if request.user_ip:
             try:
+                # Verificăm dacă ESP32 este online
                 response = requests.get(f"http://{request.user_ip}", timeout=3)
-                server_online = response.ok
-                if settings.TEST_MODE:
-                    print("ESP32 is Online" if server_online else "Response not OK")
+                if response.ok:
+                    print(f"Esp is Online")
+                    server_online = True
+                else:
+                    print(f"Response from ESP32 is not OK")
             except requests.RequestException as e:
-                if settings.TEST_MODE:
-                    print(f"Error contacting ESP32: {e}")
+                print(f"Error contacting ESP32 server: {e}")
+                server_online = False
         else:
-            if settings.TEST_MODE:
-                print("No ESP32 IP found in user settings.")
-        
+            print("No ESP32 IP found in user settings.")
+            print(request.user_ip)
+
+        # Pregătim răspunsul
         context = {
             "server_online": server_online,
             "silence_mode": silence_mode,
         }
 
+        # Răspuns final
         return JsonResponse(context)
 
     except Exception as e:
-        if settings.TEST_MODE:
-            print(f"Error retrieving user settings: {e}")
+        print(f"Error retrieving user settings: {e}")
         return HttpResponse("User settings not found", status=404)
 
 
