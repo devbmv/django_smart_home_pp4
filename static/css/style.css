@@ -427,3 +427,11 @@ input:not(:checked)+.slider:before {
     color: #3c763d;
     cursor: pointer;
 }
+
+
+/* Împiedică redimensionarea manuală și ascunde scroll-ul */
+.auto-expand {
+    resize: none;  /* Dezactivează redimensionarea manuală */
+    overflow: hidden;  /* Ascunde scroll-ul când textul depășește zona vizibilă */
+    min-height: 40px;  /* Setează o înălțime minimă */
+}

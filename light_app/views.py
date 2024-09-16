@@ -21,44 +21,62 @@ from django.apps import AppConfig
 ping_active = False
 
 
-# În views.py, actualizează funcția ping_esp32 să folosească sesiuni:
-# În funcția ping_esp32, adaugă o ieșire controlată în caz de excepții:
+import requests
+from django.conf import settings
+from time import sleep
+
+# Global variable for controlling the ping status
+ping_active = False
+
+
 def ping_esp32(user):
+    """
+    Pings the ESP32 to check if it's online.
+
+    Arguments:
+    user -- The user whose ESP32 settings are used for pinging.
+
+    This function stops pinging when it gets a successful response
+    or after an error occurs.
+    """
     global ping_active
     try:
         while ping_active:
             response = requests.get(
                 f"http://{user.usersettings.m5core2_ip}", timeout=50
             )
-            print(f"ESP32 response: {response.text}")
+            if settings.TEST_MODE:
+                print(f"ESP32 response: {response.text}")
+
             if "You can stop sending pings" in response.text:
                 ping_active = False
-                print("ESP32 received IP. Stopping pings.")
+                if settings.TEST_MODE:
+                    print("ESP32 received IP. Stopping pings.")
             else:
                 sleep(5)
     except requests.RequestException as e:
-        print(f"Error sending request to ESP32: {str(e)}")
+        if settings.TEST_MODE:
+            print(f"Error sending request to ESP32: {str(e)}")
     finally:
         ping_active = False
 
 
-# View pentru verificarea statusului serverului
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+
 @csrf_exempt  # Dezactivează protecția CSRF pentru acest endpoint
 def status_response_for_esp32(request):
-    if request.method == 'GET':
+    if request.method == "GET":
         # Verificăm dacă există un header de autorizare (Basic Authentication)
-        
-        auth_header = request.headers.get('Authorization')
-        
+
+        auth_header = request.headers.get("Authorization")
+
         if auth_header:
             # Trimitem un răspuns simplu cu un mesaj de succes
             response_data = {
                 "status": "success",
-                "message": "ESP32 successfully connected to Django server"
+                "message": "ESP32 successfully connected to Django server",
             }
             return JsonResponse(response_data, status=200)
 
@@ -68,76 +86,89 @@ def status_response_for_esp32(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import authenticate
+import base64
+import requests
+from django.conf import settings
 
 @csrf_exempt
 def check_server_status(request):
-    django_server_ip = request.get_host()
-    print(f"Django server IP: {django_server_ip}")
-    # Extragem antetul Authorization
-    auth_header = request.headers.get("Authorization")
+    """
+    Verifies the status of the server by checking the IP
+    and handling authentication.
 
+    Returns JSON response with the server status or an error message.
+    """
+    django_server_ip = request.get_host()
+    
+    if settings.TEST_MODE:
+        print(f"Django server IP: {django_server_ip}")
+
+    auth_header = request.headers.get("Authorization")
+    
     if not auth_header:
-        print("No Authorization header received")
+        if settings.TEST_MODE:
+            print("No Authorization header received")
         return HttpResponse("Unauthorized", status=401)
 
-    print(f"Authorization header: {auth_header}")
+    if settings.TEST_MODE:
+        print(f"Authorization header: {auth_header}")
 
     try:
-        # Verificăm dacă tipul de autentificare este Basic
         auth_type, auth_string = auth_header.split(" ")
         if auth_type.lower() != "basic":
-            print("Invalid authorization type")
+            if settings.TEST_MODE:
+                print("Invalid authorization type")
             return HttpResponse("Unauthorized", status=401)
 
-        # Decodăm credentialele de autentificare
         decoded = base64.b64decode(auth_string).decode("utf-8")
         username, password = decoded.split(":")
-        print(f"Decoded username: {username}")
+        
+        if settings.TEST_MODE:
+            print(f"Decoded username: {username}")
 
-        # Autentificăm utilizatorul
         user = authenticate(username=username, password=password)
         if user is not None:
-            print(f"Authentication successful for user: {username}")
             request.user = user
         else:
-            print(f"Authentication failed for user: {username}")
+            if settings.TEST_MODE:
+                print(f"Authentication failed for user: {username}")
             return HttpResponse("Unauthorized", status=401)
     except Exception as e:
-        print(f"Error during authentication: {str(e)}")
+        if settings.TEST_MODE:
+            print(f"Error during authentication: {str(e)}")
         return HttpResponse("Unauthorized", status=401)
 
-    # Verificăm setările utilizatorului
     try:
         silence_mode = request.user.usersettings.silence_mode
-
+        server_online = False
+        
         if request.user_ip:
             try:
-                # Verificăm dacă ESP32 este online
                 response = requests.get(f"http://{request.user_ip}", timeout=3)
-                if response.ok:
-                    print(f"Esp is Online")
-                    server_online = True
-                else:
-                    print(f"Response from ESP32 is not OK")
+                server_online = response.ok
+                if settings.TEST_MODE:
+                    print("ESP32 is Online" if server_online else "Response not OK")
             except requests.RequestException as e:
-                print(f"Error contacting ESP32 server: {e}")
-                server_online = False
+                if settings.TEST_MODE:
+                    print(f"Error contacting ESP32: {e}")
         else:
-            print("No ESP32 IP found in user settings.")
-            print(request.user_ip)
-
-        # Pregătim răspunsul
+            if settings.TEST_MODE:
+                print("No ESP32 IP found in user settings.")
+        
         context = {
             "server_online": server_online,
             "silence_mode": silence_mode,
         }
 
-        # Răspuns final
         return JsonResponse(context)
 
     except Exception as e:
-        print(f"Error retrieving user settings: {e}")
+        if settings.TEST_MODE:
+            print(f"Error retrieving user settings: {e}")
         return HttpResponse("User settings not found", status=404)
+
 
 # =============================================================================
 

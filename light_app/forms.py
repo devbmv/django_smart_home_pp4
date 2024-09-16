@@ -39,6 +39,7 @@ class LightForm(forms.ModelForm):
         self.fields['room'].queryset = Room.objects.filter(user=user)
         self.fields['room'].widget.attrs.update({'autocomplete': 'off'})
 
+
 class UserSettingsForm(forms.ModelForm):
     class Meta:
         model = UserSettings
@@ -59,8 +60,13 @@ class UserSettingsForm(forms.ModelForm):
             'server_check_interval',
         ]
         widgets = {
-            'display_name': forms.TextInput(attrs={'autocomplete': 'name'}),
-            'email': forms.EmailInput(attrs={'autocomplete': 'email'}),
-            'm5core2_ip': forms.TextInput(attrs={'autocomplete': 'off'}),
-            'server_check_interval': forms.NumberInput(attrs={'min': 1, 'max': 3600}),
+            'display_name': forms.TextInput(attrs={
+                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru câmpul de text
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru email input
+            }),
+            'm5core2_ip': forms.TextInput(attrs={
+                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru IP input
+            }),
         }
