@@ -72,7 +72,6 @@
     {% if user.is_authenticated %}
     <script>
         let lastServerStatus = localStorage.getItem('lastServerStatus');
-        let silence = true;
 
         document.addEventListener("DOMContentLoaded", function () {
             const serverStatusElement = document.getElementById("server-status");
@@ -82,10 +81,6 @@
             // Datele de autentificare sunt transmise din backend
             const username = "{{ user.username }}"; // Obținem numele utilizatorului din șablon
             const password = "{{ user.usersettings.api_password }}"; // Presupunând că parola pentru API este stocată în UserSettings
-
-            console.log("Username: ", username); // Debugging
-            console.log("Password: ", password); // Debugging
-            
             function checkServerStatus() {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout
@@ -102,56 +97,56 @@
                     },
                     signal: controller.signal
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    clearTimeout(timeoutId);
-                    console.log("Server status response:", data);
-
-                    if (serverStatusElement) {
-                        const serverOnline = data.server_online;
-                        const silence_mode = data.silence_mode;
-
-                        // Verifică tranziția de la offline la online
-                        if (serverOnline && lastServerStatus === "false" && !silence_mode) {
-                            onlineSound.play();
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
                         }
 
-                        // Verifică tranziția de la online la offline
-                        if (!serverOnline && lastServerStatus === "true"&&!silence_mode) {
-                            offlineSound.play();
+                        return response.json();
+
+                    })
+                    .then(data => {
+                        clearTimeout(timeoutId);
+                        if (serverStatusElement) {
+                            const homeOnline = data.home_online;
+                            const silence_mode = data.silence_mode;
+
+                            // Verifică tranziția de la offline la online
+                            if (homeOnline && lastServerStatus === "false" && !silence_mode) {
+                                onlineSound.play();
+                            }
+
+                            // Verifică tranziția de la online la offline
+                            if (!homeOnline && lastServerStatus === "true" && !silence_mode) {
+                                offlineSound.play();
+                            }
+
+                            // Actualizează starea serverului
+                            lastServerStatus = homeOnline ? "true" : "false";
+                            localStorage.setItem('lastServerStatus', lastServerStatus);
+
+                            // Actualizează interfața cu utilizatorul
+                            serverStatusElement.textContent = homeOnline ? "Home Online" : "Home Offline";
+                            serverStatusElement.classList.toggle("bg-success", homeOnline);
+                            serverStatusElement.classList.toggle("bg-danger", !homeOnline);
                         }
+                    })
+                    .catch(error => {
+                        console.error("Error checking server status:", error);
 
-                        // Actualizează starea serverului
-                        lastServerStatus = serverOnline ? "true" : "false";
-                        localStorage.setItem('lastServerStatus', lastServerStatus);
+                        if (serverStatusElement) {
+                            if (lastServerStatus === "true") {
+                                offlineSound.play();
+                            }
 
-                        // Actualizează interfața cu utilizatorul
-                        serverStatusElement.textContent = serverOnline ? "Server Online" : "Server Offline";
-                        serverStatusElement.classList.toggle("bg-success", serverOnline);
-                        serverStatusElement.classList.toggle("bg-danger", !serverOnline);
-                    }
-                })
-                .catch(error => {
-                    console.error("Error checking server status:", error);
+                            serverStatusElement.textContent = "Server Offline";
+                            serverStatusElement.classList.remove("bg-success");
+                            serverStatusElement.classList.add("bg-danger");
 
-                    if (serverStatusElement) {
-                        if (lastServerStatus === "true") {
-                            offlineSound.play();
+                            lastServerStatus = "false";
+                            localStorage.setItem('lastServerStatus', lastServerStatus);
                         }
-
-                        serverStatusElement.textContent = "Server Offline";
-                        serverStatusElement.classList.remove("bg-success");
-                        serverStatusElement.classList.add("bg-danger");
-
-                        lastServerStatus = "false";
-                        localStorage.setItem('lastServerStatus', lastServerStatus);
-                    }
-                });
+                    });
             }
 
             setInterval(checkServerStatus, serverCheckInterval);

@@ -42,7 +42,7 @@ AsyncWebServer server(80);
 String base64Encode(String str);
 void addBasicAuth(HTTPClient &http);
 void reconnectWiFi();
-void debug(String msg, uint16_t col, uint16_t row);
+void print(String msg, uint16_t col, uint16_t row);
 void checkServerStatus();
 void fetchInitialLightStates();
 void printLightStates();
@@ -53,7 +53,7 @@ void processSerialCommands();
 void sendMessage(String data);
 void initializeSystem();
 void runMainLoop();
-void debug(String msg, uint16_t col, uint16_t row);
+void print(String msg, uint16_t col, uint16_t row);
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 void detectIPHandler(AsyncWebServerRequest *request);
 WiFiClient client;
@@ -70,9 +70,6 @@ uint16_t loop_debug_time = 10000;
 String clientIPAddress = "";
 bool checkServer = true;
 bool djangoOnline = false;
-// String serverCheckUrl = "http://192.168.1.16:8000/check-server-status/";
-// String lightStatusUrl = "http://192.168.1.16:8000/lights_status/";
-// String serialPostUrl = "http://192.168.1.16:8000/esp/serial_data/"; /tring serverCheckUrl = "http://192.168.1.16:8000/check-server-status/";
 
 String serverCheckUrl = "";
 String lightStatusUrl = "";
@@ -100,7 +97,7 @@ void init_rng()
 
 void monitorHeap(String tag)
 {
-    debug(String("Free heap memory:" + String(ESP.getFreeHeap()) + " bytes\n"), 0, 150);
+    print(String("Free heap memory:" + String(ESP.getFreeHeap()) + " bytes\n"), 0, 150);
 }
 
 File certFile;
@@ -167,15 +164,15 @@ void initializeSystem()
     Serial.begin(115200);
     if (djangoUserName.isEmpty() || djangoPassword.isEmpty())
     {
-        debug("Django credentials are missing.", 0, 0);
+        print("Django credentials are missing.", 0, 0);
         delay(setup_debug_time);
     }
     else
     {
         Serial.println("Django credentials are present.");
-        debug("Django credentials are present.", 0, 0);
-        debug("Django Username: " + djangoUserName, 0, 0);
-        debug("Django Password: " + djangoPassword, 0, 20);
+        print("Django credentials are present.", 0, 0);
+        print("Django Username: " + djangoUserName, 0, 0);
+        print("Django Password: " + djangoPassword, 0, 20);
         delay(setup_debug_time);
     }
 
@@ -259,14 +256,14 @@ struct Room
 
 void sendMessage(String data)
 {
-    debug("Starting HTTP POST request to server...", 0, 220);
+    print("Starting HTTP POST request to server...", 0, 220);
 
     if (WiFi.status() == WL_CONNECTED)
     {
         HTTPClient http;
         if (!serverCheckUrl.startsWith("http"))
         {
-            debug("Invalid server URL", 0, 220);
+            print("Invalid server URL", 0, 220);
             return;
         }
 
@@ -281,7 +278,7 @@ void sendMessage(String data)
         int httpResponseCode = http.POST(payload);
         if (httpResponseCode == -1)
         {
-            debug("Error: Failed to connect to the server.", 0, 220);
+            print("Error: Failed to connect to the server.", 0, 220);
         }
 
         if (httpResponseCode > 0)
@@ -298,7 +295,7 @@ void sendMessage(String data)
             }
             else if (httpResponseCode >= 500)
             {
-                debug("Server error. Please try again later.", 0, 220);
+                print("Server error. Please try again later.", 0, 220);
             }
         }
 
@@ -306,7 +303,7 @@ void sendMessage(String data)
     }
     else
     {
-        debug("I am  try to reconnect to Wi-Fi in fun sendMessage", 0, 220);
+        print("I am  try to reconnect to Wi-Fi in fun sendMessage", 0, 220);
         reconnectWiFi();
     }
 }
@@ -391,11 +388,11 @@ void addBasicAuth(HTTPClient &http)
 {
     if (djangoUserName.isEmpty() || djangoPassword.isEmpty())
     {
-        debug("Username or password for django is missing.", 0, 180);
+        print("Username or password for django is missing.", 0, 180);
         return;
     }
     String auth = base64Encode(djangoUserName + ":" + djangoPassword);
-    debug(String("Auth urlcode = " + auth), 0, 180);
+    print(String("Auth urlcode = " + auth), 0, 180);
     http.addHeader("Authorization", "Basic " + auth);
 }
 
@@ -438,10 +435,10 @@ void checkServerStatus()
             else
             {
                 message = "Django IP is not detected!";
-                debug(message, 0, 0);
+                print(message, 0, 0);
                 return;
             }
-            debug(message, 0, 0);
+            print(message, 0, 0);
         }
         Serial.println("send request to URL: " + serverCheckUrl);
         http.begin(serverCheckUrl);
@@ -466,7 +463,7 @@ void checkServerStatus()
         {
             Serial.printf("Redirection error: %d\n", httpResponseCode);
             Serial.println("Server is trying to redirect.");
-            debug("Django is Offline", 0, 180);
+            print("Django is Offline", 0, 180);
             djangoOnline = false;
         }
         else if (httpResponseCode >= 400 && httpResponseCode < 500)
@@ -474,7 +471,7 @@ void checkServerStatus()
             Serial.printf("Client error: %d\n", httpResponseCode);
             Serial.println("Possible authentication or request issue.");
             Serial.println(http.getString());
-            debug("Django is Offline", 0, 180);
+            print("Django is Offline", 0, 180);
             djangoOnline = false;
         }
         else if (httpResponseCode >= 500)
@@ -493,12 +490,12 @@ void checkServerStatus()
     }
     else
     {
-        debug("WiFi not connected.", 0, 180);
+        print("WiFi not connected.", 0, 180);
         djangoOnline = false;
         reconnectWiFi();
         delay(500);
     }
-    debug(String(djangoOnline ? "Django Online" : "Django Offline"), 100, 120);
+    print(String(djangoOnline ? "Django Online" : "Django Offline"), 100, 120);
 }
 
 //============================================================================
@@ -512,7 +509,7 @@ void fetchInitialLightStates()
         // Verificăm dacă URL-ul este valid
         if (!lightStatusUrl.startsWith("http"))
         {
-            debug("Invalid lightStatusUrl format!", 0, 20);
+            print("Invalid lightStatusUrl format!", 0, 20);
             return;
         }
 
@@ -526,7 +523,7 @@ void fetchInitialLightStates()
             if (ESP.getMaxAllocHeap() < 500)
             {
                 Serial.println("Low memory: Unable to allocate space for JSON parsing.");
-                debug("Invalid light format!", 0, 20);
+                print("Invalid light format!", 0, 20);
                 return;
             }
 
@@ -537,7 +534,7 @@ void fetchInitialLightStates()
             if (error)
             {
                 Serial.print(F("Error parsing JSON: "));
-                debug("Error parsing JSON:", 0, 20);
+                print("Error parsing JSON:", 0, 20);
                 Serial.println(error.f_str());
                 return;
             }
@@ -581,14 +578,14 @@ void printLightStates()
     for (const auto &roomEntry : roomLightMap)
     {
         Serial.printf("Room: %s\n", roomEntry.first.c_str());
-        debug("Room: " + roomEntry.first, 0, line);
+        print("Room: " + roomEntry.first, 0, line);
         line += 20;
         for (const Light &light : roomEntry.second.lights)
         {
             String lightStateText = "Light: " + light.name + ", State: " + (light.state ? "on" : "off");
             Serial.println(lightStateText);
             sendMessage(lightStateText);
-            debug(lightStateText, 0, line);
+            print(lightStateText, 0, line);
             line += 20;
         }
     }
@@ -607,14 +604,14 @@ void reconnectWiFi()
     {
         delay(1000);
         Serial.println("Connecting to WiFi...");
-        debug("Connecting to WiFi...", 0, 40);
+        print("Connecting to WiFi...", 0, 40);
     }
     if (WiFi.status() != WL_CONNECTED)
     {
         Serial.println("Failed to connect. Rebooting...");
     }
     Serial.println("Conectat la WiFi.");
-    debug("Connected to WiFi.", 0, 40);
+    print("Connected to WiFi.", 0, 40);
 }
 
 //============================================================================
@@ -624,7 +621,7 @@ void displayIP()
 {
     IPAddress ip = WiFi.localIP();
     String ipText = "MY IP: " + ip.toString();
-    debug(ipText, 0, 10);
+    print(ipText, 0, 10);
 }
 
 //============================================================================
@@ -634,7 +631,7 @@ void handleUpdateStart(AsyncWebServerRequest *request, String filename, size_t i
     if (!index)
     {
         Serial.printf("Update Start: %s\n", filename.c_str());
-        debug("Update start:", 0, 60);
+        print("Update start:", 0, 60);
         if (filename == "firmware.bin")
         {
             Update.begin(UPDATE_SIZE_UNKNOWN);
@@ -654,7 +651,7 @@ void handleUpdateStart(AsyncWebServerRequest *request, String filename, size_t i
         else
         {
             Serial.println("File is not supported for updates.");
-            debug("File is not supported ", 0, 60);
+            print("File is not supported ", 0, 60);
             return;
         }
     }
@@ -667,12 +664,12 @@ void handleUpdateStart(AsyncWebServerRequest *request, String filename, size_t i
         if (Update.end(true))
         {
             Serial.printf("Update Success: %u\n", index + len);
-            debug("Update Success:", 0, 60);
+            print("Update Success:", 0, 60);
         }
         else
         {
             Serial.printf("Update Error: %s\n", Update.errorString());
-            debug("Update Error:", 0, 60);
+            print("Update Error:", 0, 60);
         }
         delay(5000);
         lcd.clear();
@@ -705,11 +702,11 @@ void detectIPHandler(AsyncWebServerRequest *request = nullptr)
         Serial.println("ServerCheckURL is set to : " + serverCheckUrl);
         Serial.println("lightStatusUrl is set to:" + lightStatusUrl);
         Serial.println("serialPostUrl is set to: " + serialPostUrl);
-        request->send(200, "text/plain", "I succesful received your IP" + clientIPAddress + " You can stop sending pings");
+        request->send(200, "text/plain", "I succesful received your IP: " + clientIPAddress);
     }
     else
     {
-        request->send(200, "text/plain", "I succesful received your IP" + clientIPAddress + " You can stop sending pings");
+        request->send(200, "text/plain", "I succesful received your IP :" + clientIPAddress );
     }
 }
 
@@ -738,7 +735,7 @@ void serverSetup()
                   }
                   String combinedText = room + " " + light + " is: " + action;
 
-                  debug(combinedText,0,80);
+                  print(combinedText,0,80);
 
 
                   request->send(200, "application/json", " {\"status\":\"success\"} "); });
@@ -787,7 +784,7 @@ void serverSetup()
 //     for (int i = 0; i < webSocket.connectedClients(); i++)
 //     {
 //         webSocket.sendTXT(i, message); // Trimite mesajul fiecărui client conectat
-//         debug("WSMSG sended: " + message, 0, 100);
+//         print("WSMSG sended: " + message, 0, 100);
 //     }
 // }
 
@@ -800,7 +797,7 @@ String base64Encode(String str)
 
 //============================================================================
 
-void debug(String msg, uint16_t col, uint16_t row)
+void print(String msg, uint16_t col, uint16_t row)
 {
     Serial.println(msg);
 #ifdef M5CORE2

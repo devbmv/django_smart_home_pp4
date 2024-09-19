@@ -6,7 +6,8 @@ from .models import UserSettings
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
     if created:
-        UserSettings.objects.create(user=instance)
+        UserSettings.objects.get_or_create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_settings(sender, instance, **kwargs):

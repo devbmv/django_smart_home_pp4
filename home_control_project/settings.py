@@ -4,25 +4,32 @@ import dj_database_url
 from django.contrib.messages import constants as messages
 import django_heroku
 from django.utils.translation import gettext_lazy as _
+import json
 
 # Base directory for the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 # Reading environment variables
-TEST_MODE = os.getenv("TEST_MODE", "False") == "True"
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEVELOPMENT", "False") == "True"
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
 API_USERNAME = os.getenv("DJANGO_API_USERNAME")
 API_PASSWORD = os.getenv("DJANGO_API_PASSWORD")
+home_online_status = {}
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
+
+def debug(data):
+    if DEBUG:
+        print(data)
+
+
 # Allowed hosts configuration
-ALLOWED_HOSTS = [
-    "*",
-]
+ALLOWED_HOSTS = json.loads(os.getenv("ALLOWED_HOSTS", "[]"))
+
 
 if DEBUG:
     SECURE_CROSS_ORIGIN_OPENER_POLICY = None
@@ -50,7 +57,6 @@ INSTALLED_APPS = [
     "light_app",
     "django_extensions",
     "channels",
-    "serial_connections",
     "firmware_manager",
 ]
 
@@ -107,6 +113,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "light_app.context_processors.home_status_processor",  # Calea către funcția context processor
             ],
         },
     },
@@ -123,23 +130,6 @@ if DEBUG:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-    # Debugging output if TEST_MODE is enabled
-    if TEST_MODE:
-        print("Environment Variables:\n")
-        env_vars = [
-            "SECRET_KEY",
-            "DEVELOPMENT",
-            "DATABASE_URL",
-            "CLOUDINARY_URL",
-            "TEST_MODE",
-            "WIFI_SSID",
-            "WIFI_PASSWORD",
-        ]
-
-        for var in env_vars:
-            value = os.getenv(var, "Not Set")
-            print(f"{var}: {value}\n")
 else:
     DATABASES = {
         "default": dj_database_url.config(
@@ -153,13 +143,7 @@ else:
 CLOUDINARY_URL = os.getenv("CLOUDINARY_URL")
 
 # CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = [
-    "http://cppdoth.ddns.net",
-    "https://cppdoth.ddns.net",
-    "https://*.herokuapp.com",
-    "http://192.168.1.15:80",
-    "http://192.168.1.15:80",
-]
+CSRF_TRUSTED_ORIGINS = json.loads(os.getenv("CSRF_TRUSTED_ORIGINS", "[]"))
 
 # Password validation settings
 AUTH_PASSWORD_VALIDATORS = [
@@ -204,3 +188,23 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Apply Django-Heroku settings for production
 if not DEBUG:
     django_heroku.settings(locals(), databases=False)
+
+    # Debugging output if DEBUG is enabled
+if DEBUG:
+
+    debug(f"CSRF_TRUSTED_ORIGINS START: \n\n   {CSRF_TRUSTED_ORIGINS}\n")
+    debug(f"ALLOWED HOSTS START: \n\n   {ALLOWED_HOSTS}\n")
+
+    # #debug("Environment Variables:\n")
+    env_vars = [
+        "SECRET_KEY",
+        "DATABASE_URL",
+        "CLOUDINARY_URL",
+        "DEBUG",
+        "WIFI_SSID",
+        "WIFI_PASSWORD",
+    ]
+    print("ENVIRONMENT VAR START :")
+    for var in env_vars:
+        value = os.getenv(var, "Not Set")
+        debug(f"\n       {var}: {value}\n")

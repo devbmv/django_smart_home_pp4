@@ -2,7 +2,8 @@ from django import forms
 from .models import Room, Light, UserSettings
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-
+from django.core.exceptions import ValidationError
+import re
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
@@ -44,29 +45,24 @@ class UserSettingsForm(forms.ModelForm):
     class Meta:
         model = UserSettings
         fields = [
-            "display_name",
-            "email",
-            "preferred_language",
-            "timezone",
-            "theme",
-            "font_size",
-            "primary_color",
-            "email_notifications",
-            "push_notifications",
-            "two_factor_authentication",
-            "scheduled_lights",
-            "silence_mode",
-            "m5core2_ip",
-            'server_check_interval',
+            "display_name", "email", "preferred_language", "timezone", 
+            "theme", "font_size", "primary_color", "email_notifications", 
+            "push_notifications", "two_factor_authentication", "scheduled_lights", 
+            "silence_mode", "m5core2_ip", 'server_check_interval',
         ]
         widgets = {
             'display_name': forms.TextInput(attrs={
-                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru câmpul de text
+                'class': 'form-control auto-expand', 
             }),
             'email': forms.EmailInput(attrs={
-                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru email input
+                'class': 'form-control auto-expand', 
             }),
             'm5core2_ip': forms.TextInput(attrs={
-                'class': 'form-control auto-expand',  # Folosim form-control și auto-expand pentru IP input
+                'class': 'form-control auto-expand', 
             }),
         }
+        def clean_m5core2_ip(self):
+            ip = self.cleaned_data['m5core2_ip']
+            if ip and not re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$', ip):
+                raise ValidationError("Invalid IP address")
+            return ip

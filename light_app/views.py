@@ -7,7 +7,7 @@ from django.conf import settings  # Importăm setările
 from django.contrib.auth.decorators import login_required
 from .forms import RoomForm, LightForm, UserSettingsForm, UserUpdateForm, UserSettings
 from django.utils.translation import gettext as _
-from home_control_project.settings import TEST_MODE
+from home_control_project.settings import debug,home_online_status,API_PASSWORD
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 import base64
@@ -18,28 +18,10 @@ import threading
 from django.apps import AppConfig
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
 # Variabile globale pentru controlul ping-ului
 ping_active = True
-
-
-def ping_esp32(user):
-    global ping_active
-    try:
-        while ping_active:
-            response = requests.get(
-                f"http://{user.usersettings.m5core2_ip}", timeout=10
-            )
-            print(f"ESP32 response: {response.text}")
-
-            if "You can stop sending pings" in response.text:
-                ping_active = False
-                print("ESP32 received IP. Stopping pings.")
-            else:
-                sleep(5)
-    except requests.RequestException as e:
-        print(f"Error sending request to ESP32: {str(e)}")
-        sleep(5)
-
+home_online=False
 
 @csrf_exempt  # Dezactivează protecția CSRF pentru acest endpoint
 def status_response_for_esp32(request):
@@ -65,39 +47,39 @@ def status_response_for_esp32(request):
 
 @csrf_exempt
 def check_server_status(request):
-    django_server_ip = request.get_host()
-    print(f"Django server IP: {django_server_ip}")
-    # Extragem antetul Authorization
+    if not hasattr(request.user, 'usersettings'):
+        UserSettings.objects.create(user=request.user, api_password=API_PASSWORD, server_check_interval=request.user.usersettings.server_check_interval)
+
     auth_header = request.headers.get("Authorization")
 
     if not auth_header:
-        print("No Authorization header received")
+        debug("No Authorization header received")
         return HttpResponse("Unauthorized", status=401)
 
-    print(f"Authorization header: {auth_header}")
+    debug(f"Authorization header: {auth_header}")
 
     try:
         # Verificăm dacă tipul de autentificare este Basic
         auth_type, auth_string = auth_header.split(" ")
         if auth_type.lower() != "basic":
-            print("Invalid authorization type")
+            debug("Invalid authorization type")
             return HttpResponse("Unauthorized", status=401)
 
         # Decodăm credentialele de autentificare
         decoded = base64.b64decode(auth_string).decode("utf-8")
         username, password = decoded.split(":")
-        print(f"Decoded username: {username}")
+        debug(f"Decoded username: {username}")
 
         # Autentificăm utilizatorul
         user = authenticate(username=username, password=password)
         if user is not None:
-            print(f"Authentication successful for user: {username}")
+            debug(f"Authentication successful for user: {username}")
             request.user = user
         else:
-            print(f"Authentication failed for user: {username}")
+            debug(f"Authentication failed for user: {username}")
             return HttpResponse("Unauthorized", status=401)
     except Exception as e:
-        print(f"Error during authentication: {str(e)}")
+        debug(f"Error during authentication: {str(e)}")
         return HttpResponse("Unauthorized", status=401)
 
     # Verificăm setările utilizatorului
@@ -109,28 +91,29 @@ def check_server_status(request):
                 # Verificăm dacă ESP32 este online
                 response = requests.get(f"http://{request.user_ip}", timeout=3)
                 if response.ok:
-                    print(f"Esp is Online")
-                    server_online = True
+                    debug(f"Esp is Online")
                 else:
-                    print(f"Response from ESP32 is not OK")
+                    pass
+                    debug(f"Response from ESP32 is not OK")
             except requests.RequestException as e:
-                print(f"Error contacting ESP32 server: {e}")
-                server_online = False
+                debug(f"Error contacting ESP32 server: {e}")
         else:
-            print("No ESP32 IP found in user settings.")
-            print(request.user_ip)
+            pass
+            debug("No ESP32 IP found in user settings.")
+            debug(request.user_ip)
 
         # Pregătim răspunsul
         context = {
-            "server_online": server_online,
+
+            "home_online":home_online_status[request.user.id],
             "silence_mode": silence_mode,
         }
-
+        print(context["home_online"])
         # Răspuns final
         return JsonResponse(context)
 
     except Exception as e:
-        print(f"Error retrieving user settings: {e}")
+        #debug(f"Error retrieving user settings: {e}")
         return HttpResponse("User settings not found", status=404)
 
 
@@ -162,6 +145,7 @@ def user_settings_view(request):
 
 
 def home(request):
+    print(home_online_status)
     return render(request, "light_app/index.html")
 
 
@@ -212,7 +196,7 @@ def toggle_light(request, room_name, light_name):
 
     user_ip = request.user_ip
     if not user_ip or user_ip == "none":
-        print("No ESP32 IP configured for user.")
+        #debug("No ESP32 IP configured for user.")
         return JsonResponse({"error": "ESP32 IP not configured for user"}, status=400)
 
     response_text = ""
@@ -222,17 +206,17 @@ def toggle_light(request, room_name, light_name):
 
         try:
             try:
-                print(f"Checking if ESP32 is online at IP: {user_ip}")
+                #debug(f"Checking if ESP32 is online at IP: {user_ip}")
                 response = requests.get(f"http://{request.user_ip}", timeout=50)
                 if response.status_code == 200:
-                    server_online = True
-                    print(f"\nESP32 is online at IP: {user_ip}\n")
+                    home_online = True
+                    #debug(f"\nESP32 is online at IP: {user_ip}\n")
             except requests.exceptions.RequestException as e:
-                server_online = False
-                print("Esp Server Offline")
+                home_online = False
+                #debug("Esp Server Offline")
                 response_text = f"Server offline: {e}"
 
-            if server_online:
+            if home_online:
                 response = requests.get(
                     f"http://{request.user_ip}/control_led",
                     params={"room": room_name, "light": light_name, "action": action},

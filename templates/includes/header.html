@@ -41,7 +41,7 @@
             <a class="nav-link {% if request.path == add_room_url %}active{% endif %}" aria-current="page"
               href="{% url 'add_room' %}">New Room</a>
           </li>
-          
+
           <li class="nav-item">
             <a class="nav-link {% if request.path == add_light_url %}active{% endif %}" aria-current="page"
               href="{% url 'add_light' %}">New Light</a>
@@ -50,11 +50,6 @@
           <li class="nav-item">
             <a class="nav-link {% if request.path == user_settings_url %}active{% endif %}" aria-current="page"
               href="{% url 'user_settings' %}">Settings</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link {% if request.path == uart_page_url %}active{% endif %}" aria-current="page"
-              href="{% url 'uart_page' %}">UART</a>
           </li>
 
           <li class="nav-item">
@@ -83,7 +78,15 @@
     </div>
 
     {% if user.is_authenticated %}
-    <span id="server-status" class="badge ms-3 bg-danger">Server Offline</span>
+    <span id="server-status" class="badge ms-3 {% if home_online_status %}bg-success{% else %}bg-danger{% endif %}">
+      {% if home_online_status %}
+          Server Online
+      {% else %}
+          Server Offline
+      {% endif %}
+  </span>
+  
+  
 
     <p class="text-end m-3 text-nowrap d-flex align-items-center justify-content-end"
       style="font-weight: 500; font-size: 1rem;">

@@ -30,7 +30,7 @@ class Room(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="rooms",default=1
-    )  # Legăm camera de utilizator
+    )
 
     def __str__(self):
         return self.name
@@ -94,11 +94,11 @@ class UserSettings(models.Model):
     )  # Adresa IP a utilizatorului pentru M5Core2
 
     def save(self, *args, **kwargs):
-        # Ensure the value is between 5 seconds (min) and 3600 seconds (1 hour)
+        # Ensure the value is between 5 seconds (min) and 7200 seconds (2 hour)
         if self.server_check_interval < 1:
             self.server_check_interval = 1
-        elif self.server_check_interval > 3600:
-            self.server_check_interval = 3600
+        elif self.server_check_interval > 7200:
+            self.server_check_interval = 7200
         super().save(*args, **kwargs)
 
     def __str__(self):
